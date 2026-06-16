@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>遨海科技 · 销售竞品知识闯关</title>
+<style>
+:root {
+  --navy: #0A2342;
+  --navy2: #1a3a5c;
+  --ocean: #1D9E75;
+  --ocean2: #22B585;
+  --bg: #F5F7FA;
+  --white: #FFFFFF;
+  --text: #1A2533;
+  --muted: #6B7A8D;
+  --err: #E53E3E;
+  --ok: #38A169;
+  --warn: #D69E2E;
+  --border: #E2E8F0;
+  --shadow: 0 2px 12px rgba(10,35,66,.10);
+  --r: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+.hdr{background:var(--navy);color:#fff;padding:14px 16px;text-align:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.logo{font-size:20px;font-weight:800;letter-spacing:3px;}
+.logo em{color:var(--ocean);font-style:normal;}
+.tagline{font-size:11px;opacity:.6;margin-top:2px;letter-spacing:1px;}
+
+/* ── CONTAINER ── */
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 80px;}
+
+/* ── SCREENS ── */
+.screen{display:none;}
+.screen.on{display:block;}
+
+/* ── HOME ── */
+.hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;padding:28px 20px 24px;text-align:center;margin:-0px;}
+.hero h1{font-size:22px;margin-bottom:8px;}
+.hero p{font-size:13px;opacity:.75;line-height:1.7;}
+
+.lv-card{background:#fff;border-radius:var(--r);padding:20px;margin:16px 0;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;border-left:4px solid var(--border);}
+.lv-card:hover:not(.locked){transform:translateY(-2px);box-shadow:0 6px 20px rgba(10,35,66,.14);}
+.lv-card.locked{opacity:.55;cursor:not-allowed;pointer-events:none;}
+.lv-card.unlocked{border-left-color:var(--ocean);}
+.lv-card.done{border-left-color:var(--ok);}
+.lv-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.lv-name{font-size:16px;font-weight:700;color:var(--navy);}
+.lv-num{font-size:11px;color:var(--muted);margin-bottom:3px;letter-spacing:.5px;}
+.pill{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;white-space:nowrap;}
+.pill-lock{background:#eef0f3;color:var(--muted);}
+.pill-go{background:#e6f7f2;color:var(--ocean);}
+.pill-done{background:#f0fff4;color:var(--ok);}
+.lv-desc{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.55;}
+.lv-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);}
+.lv-score-big{font-size:22px;font-weight:800;color:var(--ok);}
+.lv-action{margin-top:14px;}
+.lock-msg{margin-top:14px;padding:10px;background:#f6f6f6;border-radius:8px;text-align:center;color:var(--muted);font-size:13px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 20px;border-radius:9px;font-size:15px;font-weight:600;cursor:pointer;border:none;width:100%;transition:all .2s;font-family:inherit;}
+.btn-p{background:var(--ocean);color:#fff;}
+.btn-p:hover{background:var(--ocean2);}
+.btn-s{background:#fff;color:var(--navy);border:2px solid var(--border);}
+.btn-s:hover{border-color:var(--ocean);color:var(--ocean);}
+.btn-row{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
+
+/* ── QUIZ HEADER ── */
+.qhdr{background:var(--navy);color:#fff;padding:14px 16px 12px;}
+.qhdr-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px;}
+.prog-bar{background:rgba(255,255,255,.2);height:6px;border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--ocean);border-radius:3px;transition:width .35s ease;}
+.timer{font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:1px;}
+
+/* ── QUESTION CARD ── */
+.qcard{background:#fff;border-radius:var(--r);padding:22px;margin:18px 0;box-shadow:var(--shadow);}
+.qnum{font-size:11px;color:var(--ocean);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;}
+.qtext{font-size:16px;font-weight:700;color:var(--navy);line-height:1.65;margin-bottom:20px;}
+.opts{display:flex;flex-direction:column;gap:11px;}
+
+.opt{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:all .18s;background:#fff;}
+.opt:hover:not(.dis){border-color:var(--ocean);background:#f0fff9;}
+.opt.correct{border-color:var(--ok);background:#f0fff4;}
+.opt.wrong{border-color:var(--err);background:#fff5f5;}
+.opt.dis{cursor:default;}
+.opt-lt{width:28px;height:28px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--muted);flex-shrink:0;transition:all .18s;}
+.opt.correct .opt-lt{background:var(--ok);color:#fff;}
+.opt.wrong .opt-lt{background:var(--err);color:#fff;}
+.opt-txt{font-size:14px;line-height:1.55;padding-top:3px;}
+
+.expl{margin-top:18px;padding:15px;background:#EEF6FF;border-radius:10px;border-left:4px solid #3182CE;display:none;}
+.expl.show{display:block;}
+.expl-title{font-size:11px;font-weight:700;color:#3182CE;margin-bottom:7px;text-transform:uppercase;letter-spacing:1px;}
+.expl-body{font-size:13px;color:var(--text);line-height:1.75;}
+
+.next-wrap{margin-top:18px;display:none;}
+
+/* ── RESULTS ── */
+.res-hero{padding:32px 0 20px;text-align:center;}
+.score-ring{width:120px;height:120px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;position:relative;--sp:0%;}
+.score-ring::before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--ocean) var(--sp),var(--border) 0);}
+.score-inner{position:relative;z-index:1;width:96px;height:96px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.snum{font-size:34px;font-weight:800;color:var(--navy);line-height:1;}
+.stot{font-size:12px;color:var(--muted);}
+.res-title{font-size:21px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.res-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:4px;}
+.stat-box{background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:var(--shadow);}
+.stat-v{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.stat-l{font-size:11px;color:var(--muted);}
+
+/* ── WRONG REVIEW ── */
+.review{margin-top:24px;}
+.review-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:14px;}
+.ritem{background:#fff;border-radius:10px;padding:15px;margin-bottom:12px;box-shadow:var(--shadow);border-left:4px solid var(--err);}
+.rq{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:7px;line-height:1.5;}
+.ra{font-size:12px;color:var(--ok);margin-bottom:5px;}
+.re{font-size:12px;color:var(--muted);line-height:1.65;}
+
+/* ── BADGE ── */
+.badge-wrap{padding:32px 0;}
+.badge-box{background:#fff;border-radius:20px;padding:28px;margin-bottom:20px;box-shadow:var(--shadow);text-align:center;}
+.badge-box h2{font-size:18px;color:var(--navy);margin-bottom:16px;}
+.ni-group{margin-bottom:18px;text-align:left;}
+.ni-label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;}
+.ni{width:100%;padding:11px 14px;border:2px solid var(--border);border-radius:8px;font-size:16px;text-align:center;outline:none;color:var(--navy);font-family:inherit;}
+.ni:focus{border-color:var(--ocean);}
+.svg-wrap{max-width:260px;margin:0 auto 14px;}
+.svg-wrap svg{width:100%;height:auto;}
+.save-hint{font-size:11px;color:var(--muted);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy);color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;transition:transform .3s;z-index:500;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── CONFETTI ── */
+@keyframes cf{0%{transform:translateY(-60px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.cf{position:fixed;top:-20px;animation:cf linear forwards;z-index:999;pointer-events:none;border-radius:2px;}
+
+/* ── POP ── */
+@keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .45s cubic-bezier(.34,1.56,.64,1) forwards;}
+
+/* ── MOBILE ── */
+@media(max-width:480px){
+  .qtext{font-size:15px;}
+  .opt-txt{font-size:13px;}
+  .snum{font-size:30px;}
+  .stats{gap:8px;}
+  .stat-v{font-size:18px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo">遨<em>海</em>科技</div>
+  <div class="tagline">AOHAI · 销售竞品知识闯关系统</div>
+</div>
+
+<div class="wrap">
+
+  <!-- ════════════ HOME ════════════ -->
+  <div id="s-home" class="screen on">
+    <div class="hero">
+      <h1>竞品知识速训</h1>
+      <p>三关闯关，掌握产品卖点、竞品差异与销售话术<br>通过全部三关，获得「认证销售」徽章</p>
+    </div>
+    <div id="home-grid"></div>
+  </div>
+
+  <!-- ════════════ QUIZ ════════════ -->
+  <div id="s-quiz" class="screen">
+    <div class="qhdr">
+      <div class="qhdr-row">
+        <span id="q-lv-label">第一关：产品能力</span>
+        <span class="timer" id="q-timer">00:00</span>
+      </div>
+      <div class="qhdr-row" style="margin-bottom:8px;">
+        <span id="q-prog-txt">题目 1 / 10</span>
+        <span id="q-score-txt">得分 0</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="qcard">
+      <div class="qnum" id="q-num">第 1 题</div>
+      <div class="qtext" id="q-text"></div>
+      <div class="opts" id="opts"></div>
+      <div class="expl" id="expl">
+        <div class="expl-title">解析 · 销售话术</div>
+        <div class="expl-body" id="expl-body"></div>
+      </div>
+    </div>
+    <div class="next-wrap" id="next-wrap">
+      <button class="btn btn-p" id="next-btn" onclick="nextQ()">下一题 →</button>
+    </div>
+  </div>
+
+  <!-- ════════════ RESULTS ════════════ -->
+  <div id="s-res" class="screen">
+    <div class="res-hero">
+      <div class="score-ring" id="score-ring">
+        <div class="score-inner">
+          <div class="snum" id="r-score">0</div>
+          <div class="stot">/ 10</div>
+        </div>
+      </div>
+      <div class="res-title" id="r-title">本关完成！</div>
+      <div class="res-sub" id="r-sub"></div>
+    </div>
+    <div class="stats">
+      <div class="stat-box"><div class="stat-v" id="s-correct">0</div><div class="stat-l">答对题数</div></div>
+      <div class="stat-box"><div class="stat-v" id="s-time">0:00</div><div class="stat-l">用时</div></div>
+      <div class="stat-box"><div class="stat-v" id="s-rate">0%</div><div class="stat-l">正确率</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-p" id="r-next-btn" onclick="onNextLevel()" style="display:none">解锁下一关 →</button>
+      <button class="btn btn-s" onclick="retryLevel()">重练本关</button>
+      <button class="btn btn-s" onclick="goHome()">返回主页</button>
+    </div>
+    <div class="review" id="review-sec" style="display:none">
+      <div class="review-title">❌ 错题回顾</div>
+      <div id="wrong-list"></div>
+    </div>
+  </div>
+
+  <!-- ════════════ BADGE ════════════ -->
+  <div id="s-badge" class="screen">
+    <div class="badge-wrap">
+      <div class="badge-box">
+        <h2>🏆 恭喜获得认证徽章！</h2>
+        <div class="ni-group">
+          <label class="ni-label">输入您的姓名，生成专属认证徽章</label>
+          <input class="ni" id="badge-name" type="text" placeholder="请输入姓名" maxlength="10" oninput="refreshBadge()">
+        </div>
+        <div class="svg-wrap" id="svg-wrap"></div>
+        <p class="save-hint">截图保存，长按图片分享</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-p" onclick="goHome()">返回主页</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════
+   QUESTION BANK
+   ════════════════════════════════════════════ */
+const QB = {
+1:[
+  {q:"遨海 AT-B20 VDES 基站通过了哪项国际权威认证？",
+   o:["美国 FCC 型式认证","德国 BSH（联邦海事水文局）型式认证","英国 MCA 认证","中国 CCS 船级社认证"],a:1,
+   e:"AT-B20 已通过德国 BSH 型式认证，这是国产 VDES 设备极为稀缺的国际权威背书。话术：「我们是国内极少数拿到德国 BSH 认证的 VDES 设备厂商，这是国际海事领域最权威的型式认证之一，Saab/Kongsberg 同级别认证，国产设备仅我们具备。」"},
+  {q:"AT-B20 支持最多多少个虚拟航标（AtoN）？",
+   o:["16个","32个","48个","≥80个"],a:3,
+   e:"AT-B20 支持虚拟航标 ≥80 个，并支持 MSI 海上安全信息播发。上海翊臻仅支持 48 个。话术：「同是国产 VDES 基站，我们能设置的虚拟航标数量是翊臻的 1.67 倍，对复杂航道标识改造项目尤为关键。」"},
+  {q:"遨海 AT-B20 的 AIS/ASM 接收灵敏度是多少？",
+   o:["优于 -112 dBm","优于 -115 dBm","优于 -118 dBm","优于 -120 dBm"],a:2,
+   e:"遨海 -118 dBm 优于翊臻 -112 dBm 约 6 dB，与 Saab/Kongsberg 持平。6 dB 意味着远海弱信号环境接收能力显著更强。话术：「同等功率下，我们比国内竞品多覆盖约 40% 的弱信号区域，远海盲区接收更可靠。」"},
+  {q:"AT-B20 的最高通信速率（VDE 信道）是多少？",
+   o:["19.2 kbps","57.6 kbps","153.6 kbps","307.2 kbps"],a:3,
+   e:"VDE 信道最高速率 307.2 kbps，是传统 AIS（9.6 kbps）的 32 倍，支持图像、视频等大数据量海上通信。这是 VDES 相对 AIS 的核心跃升，是遨海产品核心卖点之一。"},
+  {q:"AT-B10AS 单收站基于什么技术？主要用于什么场景？",
+   o:["专用 ASIC 芯片，用于大型港口","软件无线电 SDR，用于轻量化 AIS 接收覆盖","FPGA 处理器，用于军事监控","云计算架构，用于远洋船队管理"],a:1,
+   e:"AT-B10AS 基于软件无线电 SDR，支持断网存储补传，适合低成本感知覆盖场景。相比「普通 AIS + 摄像头」替代方案，它是专业设备且灵敏度更高（>-115 dBm），不可同类比较。"},
+  {q:"遨海产品线中，哪款产品支持卫星 VDES（VDE-SAT）双向收发？",
+   o:["AT-B20 VDES 基站","AT-B10AE AIS 增强基站","AT-S30 VDES 卫星载荷","海域监管数智平台"],a:2,
+   e:"AT-S30 是遨海的卫星载荷产品，支持 LAIS/AIS/ASM 接收 + VDE-SAT 双向收发，上行速率 4.2～134.4 kbps。注意：目前处于在轨试验阶段，尚未商业运营，对客户须如实说明。"},
+  {q:"遨海 AT-B20 采用哪些调制方式？（选最完整的答案）",
+   o:["仅 GMSK","GMSK 和 π/4QPSK","GMSK、π/4QPSK、16QAM","OFDM 和 16QAM"],a:2,
+   e:"三种调制方式覆盖 VDE 高阶调制（16QAM），这是实现 307.2 kbps 高速率的关键。16QAM 代表设备已真正支持 VDE 高速信道，而非仅挂名支持——是硬核技术指标。"},
+  {q:"AT-B20 的供电方式有哪些？",
+   o:["仅 AC 220V","仅 DC 12-36V","AC 220V 和 DC 12-36V 双电源自动切换","需要外接 UPS 才能双路供电"],a:2,
+   e:"双电源自动切换是重要可靠性指标，适合海上恶劣环境部署。对比 Kongsberg（需选配），遨海供电冗余度开箱即有，无需额外采购。话术：「出厂即双路冗余，无需另购 UPS。」"},
+  {q:"海域监管数智平台能融合哪些数据源？",
+   o:["仅 AIS 和雷达","AIS、雷达、VHF、CCTV、水文气象、标准水上要素","仅 AIS 和 CCTV","只支持遨海自有设备数据"],a:1,
+   e:"多源融合是平台核心竞争力。相对「空平台」集成商，遨海平台具备多模态 AI 行为语义理解能力，能生成行为描述与告警，而非仅做展示。话术：「我们不只展示数据，还能识别异常行为并自动告警。」"},
+  {q:"AT-B10AE AIS 增强基站相比 AT-B20 的定位差异是什么？",
+   o:["AT-B10AE 功能更强，是旗舰产品","AT-B10AE 是 AIS+ASM 增强基站，可平滑升级至 VDES，适合过渡期方案","AT-B10AE 专用于渔船管理","AT-B10AE 是卫星通信设备"],a:1,
+   e:"AT-B10AE 是 AT-B20 的过渡版，支持 AIS+ASM 双信道，最关键优势是「可平滑升级至 VDES」——对预算有限但规划升级的客户，这是降低门槛的好方案，有效缩短决策周期。"},
+  {q:"遨海 AT-B20 的物理尺寸和重量是多少？",
+   o:["1U 机架，3 kg","2U 机架，6 kg","2U 机架，9 kg","3U 机架，12 kg"],a:2,
+   e:"这是遨海相对 Kongsberg（1U/3 kg）和 Saab（2U/6 kg）的劣势项。对客户应直接承认：「体积重量我们不是最轻的，但我们在灵敏度（-118 dBm）、认证（BSH）、虚拟航标数量（≥80）上全面占优。」"},
+  {q:"AT-S30 卫星载荷的 VDE-SAT 上行速率范围是多少？",
+   o:["1.2～19.2 kbps","4.2～134.4 kbps","9.6～307.2 kbps","19.2～1024 kbps"],a:1,
+   e:"4.2～134.4 kbps 的上行速率支持海上宽带数据传输，远超传统卫星 AIS 的单向接收能力。但需向客户说明目前在轨试验阶段，商业运营时间待确认——诚实是建立信任的基础。"},
+  {q:"遨海公司成立时间和注册资本是？",
+   o:["2015年成立，注册资本5000万","2019年12月成立，注册资本1亿","2020年成立，注册资本5亿","2018年成立，注册资本2亿"],a:1,
+   e:"2019年12月成立，注册资本1亿。成立时股东为：中国运载火箭技术研究院（航天一院）+ 大连遨海科技发展中心 + 大连海事大学投资公司。「航天系+海事高校+本地资本」三方背景是国产化叙事的重要支撑。"},
+  {q:"遨海首批 VDES 基站（AT-B10）入网的单位是哪里？部署了几座？",
+   o:["南海航保中心，2座","北海航海保障中心，3座","东海航保中心，5座","交通运输部直属，10座"],a:1,
+   e:"国内首批 VDES 基站已入网北海航海保障中心，部署大连老铁山、黄白嘴、烟台北隍城共3座。务必记住：这是目前最重要的背书案例，见客户时要能脱口而出地点和数量。"},
+  {q:"海域监管数智平台支持哪些部署方式？",
+   o:["仅云端 SaaS","仅私有化部署","单机版和集群版均可配置","仅支持信创服务器"],a:2,
+   e:"单机版/集群版双模式适配不同客户规模。政府客户通常要求私有化部署，需在销售中主动提及——这是相对纯 SaaS 厂商的竞争优势，特别适合对数据安全要求高的海警/海事客户。"}
+],
+2:[
+  {q:"Saab R60 VDES 基站的 VDE 信道目前处于什么状态？",
+   o:["已实装并过 BSH 认证","已实装但尚未认证","预留信道，「待国际批准」（pending approval）","已放弃 VDE，转型其他方案"],a:2,
+   e:"Saab R60 官方 datasheet 明确：VDE 信道「pending approval」。而遨海 AT-B20 VDE 已实装并过 BSH 认证。话术：「Saab 的 VDE 还在等待审批，我们已经实装并拿到德国权威认证，现在就能用，不需要等。」"},
+  {q:"海兰信（300065）在竞品分析中的威胁等级是？主要强项是什么？",
+   o:["低威胁，主要做渔船 AIS","高威胁，近海雷达网+海防平台已绑定执法客户","中威胁，主要威胁在国际市场","低威胁，已被实体清单制裁无法参与项目"],a:1,
+   e:"海兰信威胁等级「高」，2022年6月虽入美商务部实体清单，但国内项目不受影响。近海雷达网+智慧海防绑定执法客户，迁移成本高。应对：找差异场景（远海/VDES 通信）而非正面抢已绑定客户。"},
+  {q:"赤湾通信的威胁等级是多少？为什么？",
+   o:["低，因为没有 VDES 产品","中，只做卫星不做地面","高，VDES 地面网络获交通运输部批复，直接设备层竞争","低，主要做境外市场"],a:2,
+   e:"赤湾通信已申请 ITU 卫星频率，VDES 地面网络工程获交通运输部批复并为交通强国试点——这是最直接的国内 VDES 设备+卫星对手，是需要在案例和认证上快速建立护城河的头号国内竞手。"},
+  {q:"上海翊臻电子的 VDES 基站，AIS/ASM 接收灵敏度是多少？",
+   o:["优于 -118 dBm","优于 -115 dBm","-112 dBm","优于 -105 dBm"],a:2,
+   e:"翊臻 -112 dBm，遨海 -118 dBm，差距 6 dB。高层明确翊臻为「基站层重点关注对象」。话术：「同是国产 VDES 基站，我们灵敏度指标高 6 dB，等效于远海盲区接收能力强约 40%。」"},
+  {q:"三大运营商下属企业在竞品池中被列为哪一层？威胁等级如何？",
+   o:["设备层，中威胁","平台层，高威胁","总包/集成商层，高威胁","替代方案层，低威胁"],a:2,
+   e:"运营商下属企业（移动政企、电信数科、联通数字等）掌握客户关系与预算入口，「最可能把遨海压成设备供应商」。策略：争取成为其 VDES/AIS 专业能力分包方，而非被其替换。"},
+  {q:"Kongsberg 在国内市场的主要制约因素是什么？",
+   o:["产品技术落后","价格太贵","政府采购国产化逆风","没有 VDES 产品"],a:2,
+   e:"Kongsberg 全球标准认证最高，但国内政府采购国产化政策形成逆风，威胁等级降为「中」。遨海要乘国产化政策东风实现替代。话术：「政府项目信创要求下，国际品牌进场难度大，国产化替代窗口正在打开。」"},
+  {q:"航天科技集团八院（804所）与遨海的关系需要注意什么？",
+   o:["804所是遨海的主要客户","遨海股东之一是航天八院","遨海成立时股东是航天一院，与八院不同；八院804所是 VDES 卫星载荷竞争者，关系需内部厘清","804所已并购遨海"],a:2,
+   e:"容易混淆的关键点！遨海成立时股东是中国运载火箭技术研究院（航天一院），而 804所属于航天科技集团八院——是不同单位，且八院做 VDES 卫星载荷，销售中务必不要混淆。"},
+  {q:"「普通 AIS + 摄像头 + 大屏」作为替代方案，遨海的主要反制论据是什么？",
+   o:["价格更低","安装更简单","多源感知+VDES通信+行为监管闭环，能解决「单一手段难闭环」问题","拥有更多历史案例"],a:2,
+   e:"替代方案核心缺陷是「单一手段，难闭环」。遨海提供从感知（AIS+雷达+视频）到通信（VDES 双向）到智能（行为告警+留痕）的完整闭环。话术：「您现有方案能看到船，我们的方案能管到船。」"},
+  {q:"中船鹏力的国产 VTS 系统叫什么名字？获得了什么奖项？",
+   o:["海卫 VTS，获科技进步奖","PRIDe VTS，获中国航海科技奖特等奖","智慧 VTS，获国家技术发明奖","明珠 VTS，获交通运输部推荐奖"],a:1,
+   e:"PRIDe VTS 1000 系统获中国航海科技奖特等奖，打破了国外 VTS 垄断。了解竞品名称和荣誉，有助于在客户面前体现专业度——正确说出竞品名字是基本功。"},
+  {q:"卫星 AIS（ORBCOMM/Spire）作为替代方案，遨海的反制点是什么？",
+   o:["遨海卫星覆盖范围更广","遨海价格更低","VDES 支持 AIS+ASM+VDE 双向通信，卫星 AIS 只能单向接收位置","卫星 AIS 信号已被中国屏蔽"],a:2,
+   e:"卫星 AIS 只能接收位置信息（单向），无法做到双向通信和指令下达。VDES 的 ASM+VDE 信道支持双向数据交互，可用于调度、告警、应急通信等，功能维度完全不同。"},
+  {q:"遨海在「标准与认证」维度的评分为什么没有满分？",
+   o:["因为 BSH 认证尚未获批","已过 BSH 认证但与他厂 VDES 设备的互联互通实测仍待核，是下阶段要补齐的短板","各项认证全部完成，确实是满分","只有国内认证，国际认证全部缺失"],a:1,
+   e:"AT-B20 通过 BSH 认证，标准认证得分升至 4 分，未到 5 分的原因：与他厂 VDES 设备的互联互通实测公开渠道未见，进平台与招标时缺少凭证——这是下阶段要优先补齐的关键短板。"},
+  {q:"哪类竞品被竞品池标注为「潜在合作方」而非竞争对手？",
+   o:["赤湾通信","上海翊臻","平台强/海事专业能力弱的集成商","Kongsberg"],a:2,
+   e:"平台强但海事能力弱的集成商（如部分运营商系、政务数科类公司）是合作目标。话术：「我们不抢您的总包地位，我们是您在 VDES/海事通信专业层面的能力补充，您对客户，我们对您。」"},
+  {q:"竞品分析中，遨海与竞品相比最大的结构性短板是什么？",
+   o:["产品技术落后","「项目案例少+客户关系弱+互联互通实测待证」——产品能打赢但进不了门","价格太贵，无竞争力","团队规模太小，无法交付"],a:1,
+   e:"SWOT 战略画像一句话总结：「技术领先、认证稀缺、商务补课——产品能打赢，但进不了门是核心矛盾。」理解这个矛盾，才能解释为什么要优先拿试点案例、补互联互通报告。"},
+  {q:"遨海在竞品能力对标中，哪个维度的评分最高？",
+   o:["项目案例与背书","商务与渠道","技术能力与标准认证（并列最高）","星地一体/卫星"],a:2,
+   e:"遨海技术能力与标准认证均评 4 分（满分5），是最高分项。而项目案例和商务渠道仅 2 分，是明显短板。话术：「我们是技术先行型公司，产品能力过硬，商业化路径正在快速补齐。」"},
+  {q:"关于遨海 SWOT 分析，以下哪项不是遨海的「优势（Strength）」，而是「劣势（Weakness）」？",
+   o:["AT-B20 通过德国 BSH 型式认证","VDE 全信道已实装（307.2 kbps）","项目案例丰富，市场认可度高","航天系国产背景契合信创要求"],a:2,
+   e:"「项目案例丰富」恰恰是遨海目前最大的短板——SWOT 分析中明确列为劣势（Weakness）。2025年遨海的首要任务就是通过试点项目快速补齐这块短板。其余三项均是核心优势。"}
+],
+3:[
+  {q:"客户（海警）问「VDES 现在是强制要求吗？」最准确的回答是？",
+   o:["是的，IMO 已全球强制，必须尽快升级","2028年为自愿配备节点非强制，但远海30海里外监管盲区现在就是真实痛点","不是，您等2030年再考虑","中国已单独立法强制，不装要罚款"],a:1,
+   e:"「VDES 即将全球强制」是竞品分析明确列出的「禁止使用」话术红线。正确表述：2028 VDES 自愿配备节点临近，但客户痛点（远海盲区、多源感知未闭环）现在就存在，不需要等强制令才能立项。"},
+  {q:"客户已有中船鹏力 VTS 平台，质疑为什么还需要遨海，最佳应对思路是？",
+   o:["正面攻击鹏力平台能力不足，说服客户换掉","降价，争取做硬件配套供应商","定位「专业能力分包方」——VDES 远海通信能力嵌入鹏力平台，补盲区不替换平台","告诉客户遨海总包能力更强"],a:2,
+   e:"不正面抢 VTS 总包是明确战略。话术：「我们不替代您现有的 VTS 平台，我们是补齐平台在远海 VDES 通信层的专业能力——30海里外的盲区，鹏力平台的传感器覆盖不到，我们的 VDES 岸基+卫星能填上这个洞。」"},
+  {q:"遨海在国内首批 VDES 基站入网测试中，实测通信距离和丢包率是多少？（必背数据）",
+   o:["20海里稳定，80NM丢包<5%","35海里稳定，60NM丢包<10%","50海里稳定，100NM丢包<20%","仅近岸10海里测试"],a:1,
+   e:"必背！北海航保中心：35海里稳定通信；威海海事局+中远海运：60NM（约111公里）测试丢包率<10%。部署：大连老铁山、黄白嘴、烟台北隍城3座基站。这是销售中最有力的实测背书，见客户要能脱口而出。"},
+  {q:"遨海最适合优先切入的细分市场是？",
+   o:["大型近岸 VTS 总包项目，与中船鹏力正面竞争","游艇监管、港口局部、海上风电、渔港、远海盲区监管","只做国际市场，回避国内竞争","专注军用市场，不做民用"],a:1,
+   e:"聚焦/细分+差异化战略：切侧翼场景（游艇/风电/渔港/远海）积累案例，而非正面抢总包。这些场景预算入口相对分散，不被大集成商把持，是遨海的突围路径。每个细分案例都是下一阶段资质背书。"},
+  {q:"客户问「你们案例不多，凭什么说你们稳定可靠？」最好的回应策略是？",
+   o:["承诺未来会有更多案例","用北海航保中心入网+35海里实测数据+BSH国际认证三重背书，转移到技术可信度","降价补偿客户试错风险","回避这个问题，转移话题"],a:1,
+   e:"话术：「案例数量确实是我们在补的短板，但评价设备可靠性最直接的指标是：国际权威认证（BSH）+ 实测数据（35海里稳定/60NM丢包<10%）+ 首批国家级入网。这三项我们都有，不需要靠案例数量来证明。」"},
+  {q:"面对 Saab/Kongsberg 的竞争，遨海的核心差异化叙事应该是？",
+   o:["价格比国际品牌低50%","「VDE已实装+BSH认证+国产化替代」三合一，抓国产化政策红利窗口","产品功能完全一样，但服务更好","强调遨海规模更大、历史更悠久"],a:1,
+   e:"Saab VDE 仍 pending，遨海 VDE 已实装；Saab/Kongsberg 受国产化逆风；遨海有 BSH 同级别认证。话术：「同等技术门槛，我们是国产唯一过 BSH 认证的选择，在政府信创要求下，我们是替代国际品牌的最优方案。」"},
+  {q:"如果客户提出「海兰信已经给我们装了雷达网，不想再引入新供应商」，应该怎么回应？",
+   o:["说海兰信雷达有质量问题","找差异场景切入：海兰信做近岸雷达，遨海补远海30海里外VDES通信盲区，互补不替换","建议客户把海兰信全部换掉","放弃这个客户，转攻其他市场"],a:1,
+   e:"绕行策略：海兰信近海雷达网已绑定执法客户，迁移成本高。话术：「我们不做近岸雷达，我们做雷达覆盖不到的远海 VDES 双向通信——您的雷达网覆盖30海里内，我们补30海里外的盲区，刚好形成互补，不存在替换问题。」"},
+  {q:"销售中提到「遨海成立时股东背景」时，正确的表述是？",
+   o:["「我们是航天八院旗下企业」","「成立时由中国运载火箭技术研究院（航天一院）、大连海事大学联合投资」","「我们是国家海洋局下属企业」","「我们是大连市政府全资企业」"],a:1,
+   e:"容易出错：遨海成立时股东是航天一院（中国运载火箭技术研究院），不是八院。三个股东：航天一院 + 大连遨海科技发展中心 + 大连海事大学投资公司。在政府客户面前，航天系背景是重要可信度背书，必须表述准确。"},
+  {q:"客户问「你们 VDES 卫星什么时候商用？」正确回答是？",
+   o:["「明年就商用，届时覆盖全球」","「AT-S30 目前处于在轨试验阶段，商业运营时间待确认；但地面 VDES 岸基已完全成熟可交付」","「已经商用，全球都在用」","「卫星项目已暂停，专注地面产品」"],a:1,
+   e:"竞品分析红线：短板须如实说明。AT-S30 在轨试验阶段未商业运营是事实，不能夸大。正确做法：诚实说明卫星状态，同时用地面产品的成熟度和 BSH 认证背书补充信心——诚实才能建立长期信任。"},
+  {q:"当客户是「文旅/渔港」类场景时，遨海最适合用哪个产品组合切入？",
+   o:["AT-B20 VDES 旗舰基站+全套平台","AT-B10AS 单收站或 AT-B10AE 增强基站+海域监管平台轻量版","AT-S30 卫星载荷","不适合做这类客户，放弃"],a:1,
+   e:"文旅/渔港是「轻量化专业场景」，预算有限。AT-B10AS（低成本接收站）或 AT-B10AE（AIS增强+可升级VDES）切入，搭配平台做「备案/申报/告警/调度/应急/留痕」完整闭环，比「文旅大数据平台」强在海上安全专业性。"},
+  {q:"对于「总包/集成商掌握预算入口」的威胁，遨海的应对策略是？",
+   o:["自己去竞争成为总包方","放弃有集成商介入的项目","争取成为集成商的「VDES专业能力分包方」，让集成商作为渠道","通过低价挤掉集成商"],a:2,
+   e:"三大运营商下属企业等集成商掌握预算入口，正面竞争风险大。话术（对集成商说）：「我们不抢您的总包地位，我们是您在 VDES/海事通信专业层面的能力补充，您对客户交付，我们对您支持——一起把项目做下来。」"},
+  {q:"竞品分析建议遨海优先要完成的三件核心事项是什么？",
+   o:["开发新产品、拓展国际市场、上市融资","拿下一个 VDES 远海监管试点、补互联互通实测报告、与2家平台集成商建立分包合作","降价30%、扩大销售团队、开设分支机构","收购竞争对手、申请更多专利、开展广告投放"],a:1,
+   e:"三件事直接针对遨海核心短板：①1个海区试点→产出验收报告；②互联互通实测+国内认证各≥1份；③签订集成商合作意向≥2家。作为新销售，你最直接能贡献的就是「找到适合做试点的客户」。"},
+  {q:"销售漏斗中，遨海面对政府客户最关键的「四问」是什么？",
+   o:["价格/交期/售后/质保","预算在谁/谁写需求/谁做总包/谁验收——客户采购路径四问","客户规模/项目金额/决策人/竞争对手","产品型号/数量/安装地点/使用场景"],a:1,
+   e:"B2G（政府）销售最关键是搞清楚「钱在谁手里、谁写招标需求」。采购路径：预算部门→需求编写→技术路线→总包→验收→可能指定设备方→可能排除遨海者。不搞清楚这条链，技术再好也进不了标。"},
+  {q:"遨海的一句话战略定位是什么？",
+   o:["「中国最大的 AIS 设备供应商」","「以星地一体远海监管+VDES全信道为差异化锚点的关键能力供应商」","「替代 Saab/Kongsberg 的国产 VTS 总包商」","「面向渔船的低成本 AIS 服务商」"],a:1,
+   e:"战略画像核心：以「VDES全信道+BSH认证+远海高灵敏度」为矛，切「远海/盲区监管」和「国产化替代」两条主线。不做大 VTS 总包，做「关键能力供应商+战略分包」——这是与中船鹏力、海兰信差异化共存的路径。"},
+  {q:"如果销售过程中客户提出关于竞品的问题，你不确定答案，应该怎么处理？",
+   o:["随便猜一个，表现自信","说「竞品都不行，不用了解」","诚实说「这个问题我需要确认，今天下午给您准确答案」，然后查竞品分析工作簿核实","转移话题，回避竞品问题"],a:2,
+   e:"竞品分析「诚实对标红线」：禁止照搬竞品宣传话术，不得为自证占优而夸大。承诺给准确答案并兑现，比当场胡说更专业——一次不诚实损失的是整个客户关系，一次「我去确认」赢得的是长期信任。"}
+]
+};
+
+/* ════════════════════════════════════════════
+   CONFIG
+   ════════════════════════════════════════════ */
+const PASS = {1:7, 2:7, 3:8};
+const LV_NAME = {1:'第一关：产品能力', 2:'第二关：竞品认知', 3:'第三关：销售实战'};
+const KEYS = (l) => ({best:`aohai_quiz_level${l}_best`, unlocked:`aohai_quiz_level${l}_unlocked`, attempts:`aohai_quiz_level${l}_attempts`});
+
+/* ════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════ */
+let QS = {level:1, qs:[], idx:0, score:0, wrong:[], start:0, tid:null};
+
+/* ════════════════════════════════════════════
+   STORAGE
+   ════════════════════════════════════════════ */
+const get = k => { try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } };
+const set = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+
+function lvState(l) {
+  return {
+    best: get(KEYS(l).best) || 0,
+    unlocked: l===1 ? true : (get(KEYS(l).unlocked) || false),
+    attempts: get(KEYS(l).attempts) || 0
+  };
+}
+function isPassed(l){ return lvState(l).best >= PASS[l]; }
+
+/* ════════════════════════════════════════════
+   SHUFFLE (Fisher-Yates)
+   ════════════════════════════════════════════ */
+function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){const j=0|Math.random()*(i+1);[r[i],r[j]]=[r[j],r[i]];} return r; }
+function pick(l){ return shuffle(QB[l]).slice(0,10); }
+
+/* ════════════════════════════════════════════
+   SCREENS
+   ════════════════════════════════════════════ */
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='home') renderHome();
+}
+function goHome(){ show('home'); }
+
+/* ════════════════════════════════════════════
+   HOME
+   ════════════════════════════════════════════ */
+function renderHome(){
+  const cfg = [
+    {id:1, icon:'📡', desc:'掌握遨海产品线核心参数与技术优势'},
+    {id:2, icon:'🔍', desc:'了解主要竞品差距与市场竞争格局'},
+    {id:3, icon:'💬', desc:'销售场景话术演练与应对策略实战'}
+  ];
+  document.getElementById('home-grid').innerHTML = cfg.map(c=>{
+    const s = lvState(c.id);
+    const passed = s.best >= PASS[c.id];
+    const locked = !s.unlocked;
+    const pillCls = locked?'pill-lock':(passed?'pill-done':'pill-go');
+    const pillTxt = locked?'🔒 未解锁':(passed?`✓ 已通关 ${s.best}/10`:'进行中');
+    const cardCls = locked?'locked':(passed?'done':'unlocked');
+    const action = locked
+      ? `<div class="lock-msg">通过第 ${c.id-1} 关后解锁</div>`
+      : `<div class="lv-action"><button class="btn btn-p" onclick="startLevel(${c.id})" style="pointer-events:auto">${passed?'再次挑战 →':'开始答题 →'}</button></div>`;
+    const scoreHtml = passed
+      ? `<div style="margin-top:8px"><span class="lv-score-big">${s.best}</span><span style="font-size:13px;color:var(--muted)"> / 10 历史最高</span></div>` : '';
+    return `<div class="lv-card ${cardCls}">
+      <div class="lv-row">
+        <div><div class="lv-num">第 ${c.id} 关</div><div class="lv-name">${c.icon} ${LV_NAME[c.id].split('：')[1]}</div></div>
+        <span class="pill ${pillCls}">${pillTxt}</span>
+      </div>
+      <div class="lv-desc">${c.desc}</div>
+      <div class="lv-meta">
+        <span>📝 10题 / 15题库随机</span>
+        <span>🎯 ≥${PASS[c.id]}题通过</span>
+        ${s.attempts>0?`<span>🔁 已练 ${s.attempts} 次</span>`:''}
+      </div>
+      ${scoreHtml}
+      ${action}
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════
+   START LEVEL
+   ════════════════════════════════════════════ */
+function startLevel(l){
+  const s = lvState(l);
+  if(!s.unlocked){ toast('请先通过前一关！'); return; }
+  set(KEYS(l).attempts, s.attempts+1);
+  QS = {level:l, qs:pick(l), idx:0, score:0, wrong:[], start:Date.now(), tid:null};
+  document.getElementById('q-lv-label').textContent = LV_NAME[l];
+  show('quiz');
+  startTimer();
+  renderQ();
+}
+
+/* ════════════════════════════════════════════
+   TIMER
+   ════════════════════════════════════════════ */
+function startTimer(){
+  if(QS.tid) clearInterval(QS.tid);
+  QS.tid = setInterval(()=>{
+    const e = 0|(Date.now()-QS.start)/1000;
+    document.getElementById('q-timer').textContent =
+      `${String(0|e/60).padStart(2,'0')}:${String(e%60).padStart(2,'0')}`;
+  },1000);
+}
+function stopTimer(){ clearInterval(QS.tid); }
+
+/* ════════════════════════════════════════════
+   RENDER QUESTION
+   ════════════════════════════════════════════ */
+const LTRS = ['A','B','C','D'];
+function renderQ(){
+  const q = QS.qs[QS.idx];
+  const n = QS.idx+1, tot = QS.qs.length;
+  document.getElementById('q-num').textContent = `第 ${n} 题 · ${LV_NAME[QS.level].split('：')[1]}`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('prog-fill').style.width = `${((n-1)/tot)*100}%`;
+  document.getElementById('q-prog-txt').textContent = `题目 ${n} / ${tot}`;
+  document.getElementById('q-score-txt').textContent = `得分 ${QS.score}`;
+  document.getElementById('opts').innerHTML = q.o.map((t,i)=>
+    `<div class="opt" id="op${i}" onclick="pick_ans(${i})">
+       <div class="opt-lt" id="ol${i}">${LTRS[i]}</div>
+       <div class="opt-txt">${t}</div>
+     </div>`).join('');
+  document.getElementById('expl').classList.remove('show');
+  document.getElementById('next-wrap').style.display='none';
+}
+
+/* ════════════════════════════════════════════
+   PICK ANSWER
+   ════════════════════════════════════════════ */
+function pick_ans(sel){
+  const q = QS.qs[QS.idx];
+  const cor = q.a;
+  document.querySelectorAll('.opt').forEach(o=>o.classList.add('dis'));
+  if(sel===cor){
+    document.getElementById('op'+sel).classList.add('correct');
+    document.getElementById('ol'+sel).textContent='✓';
+    QS.score++;
+  } else {
+    document.getElementById('op'+sel).classList.add('wrong');
+    document.getElementById('ol'+sel).textContent='✗';
+    document.getElementById('op'+cor).classList.add('correct');
+    document.getElementById('ol'+cor).textContent='✓';
+    QS.wrong.push(q);
+  }
+  document.getElementById('expl-body').textContent = q.e;
+  document.getElementById('expl').classList.add('show');
+  document.getElementById('q-score-txt').textContent = `得分 ${QS.score}`;
+  const isLast = QS.idx === QS.qs.length-1;
+  document.getElementById('next-btn').textContent = isLast ? '查看结果 →' : '下一题 →';
+  const nw = document.getElementById('next-wrap');
+  nw.style.display='block';
+  setTimeout(()=>nw.scrollIntoView({behavior:'smooth',block:'nearest'}),120);
+}
+
+/* ════════════════════════════════════════════
+   NEXT QUESTION
+   ════════════════════════════════════════════ */
+function nextQ(){
+  QS.idx++;
+  if(QS.idx>=QS.qs.length){ stopTimer(); showResults(); }
+  else { renderQ(); window.scrollTo(0,0); }
+}
+
+/* ════════════════════════════════════════════
+   RESULTS
+   ════════════════════════════════════════════ */
+function showResults(){
+  const {level,score,wrong,start} = QS;
+  const el = 0|(Date.now()-start)/1000;
+  const tot = QS.qs.length;
+  const passed = score>=PASS[level];
+  const prevBest = lvState(level).best;
+  if(score>prevBest) set(KEYS(level).best, score);
+  if(passed && level<3) set(KEYS(level+1).unlocked, true);
+
+  const pct = score/tot;
+  document.getElementById('score-ring').style.setProperty('--sp', (pct*100)+'%');
+  document.getElementById('r-score').textContent = score;
+  document.getElementById('s-correct').textContent = score;
+  document.getElementById('s-time').textContent =
+    `${String(0|el/60).padStart(2,'0')}:${String(el%60).padStart(2,'0')}`;
+  document.getElementById('s-rate').textContent = Math.round(pct*100)+'%';
+
+  if(passed){
+    document.getElementById('r-title').textContent =
+      level===3 ? '🏆 全部三关通关！认证达成' : '本关通过！';
+    document.getElementById('r-sub').textContent =
+      level===3 ? `答对 ${score} 题，成绩优秀，获得认证销售徽章！`
+                : `答对 ${score} 题，已解锁下一关！`;
+  } else {
+    document.getElementById('r-title').textContent = '本次未通过，继续加油！';
+    document.getElementById('r-sub').textContent = `答对 ${score} 题，需 ${PASS[level]} 题通过，可重练本关。`;
+  }
+
+  const nb = document.getElementById('r-next-btn');
+  if(passed && level<3){
+    nb.textContent = `前往第 ${level+1} 关 →`; nb.style.display='';
+  } else if(passed && level===3){
+    nb.textContent = '查看认证徽章 →'; nb.style.display='';
+  } else {
+    nb.style.display='none';
+  }
+
+  const rev = document.getElementById('review-sec');
+  if(wrong.length>0){
+    rev.style.display='block';
+    document.getElementById('wrong-list').innerHTML = wrong.map(q=>`
+      <div class="ritem">
+        <div class="rq">${q.q}</div>
+        <div class="ra">✓ 正确答案：${LTRS[q.a]}. ${q.o[q.a]}</div>
+        <div class="re">${q.e}</div>
+      </div>`).join('');
+  } else {
+    rev.style.display='none';
+  }
+
+  show('res');
+  if(passed) confetti();
+}
+
+function onNextLevel(){
+  const {level,score}=QS;
+  if(score>=PASS[level] && level===3) showBadge();
+  else if(score>=PASS[level]) startLevel(level+1);
+}
+function retryLevel(){ startLevel(QS.level); }
+
+/* ════════════════════════════════════════════
+   BADGE
+   ════════════════════════════════════════════ */
+function showBadge(){ show('badge'); refreshBadge(); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function refreshBadge(){
+  const name = document.getElementById('badge-name').value.trim() || '——';
+  const d = new Date();
+  const ds = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('svg-wrap').innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 330" width="280" height="330">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A2342"/>
+      <stop offset="100%" stop-color="#1a3a5c"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F6C90E"/>
+      <stop offset="100%" stop-color="#E8A030"/>
+    </linearGradient>
+  </defs>
+  <rect width="280" height="330" rx="20" fill="url(#g1)"/>
+  <rect x="8" y="8" width="264" height="314" rx="15" fill="none" stroke="url(#g2)" stroke-width="1.5"/>
+  <rect x="0" y="0" width="280" height="56" rx="20" fill="#1D9E75" opacity="0.18"/>
+  <rect x="0" y="36" width="280" height="20" fill="#1D9E75" opacity="0.18"/>
+  <text x="140" y="37" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#1D9E75" letter-spacing="4">遨　海　科　技</text>
+  <circle cx="140" cy="112" r="46" fill="url(#g2)" opacity="0.12"/>
+  <circle cx="140" cy="112" r="42" fill="none" stroke="url(#g2)" stroke-width="1.5"/>
+  <polygon points="140,82 148,104 172,104 154,118 161,140 140,127 119,140 126,118 108,104 132,104" fill="url(#g2)"/>
+  <text x="140" y="178" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#ffffff" opacity="0.7">销售竞品知识认证</text>
+  <text x="140" y="210" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="bold" fill="#ffffff">${esc(name)}</text>
+  <line x1="55" y1="225" x2="225" y2="225" stroke="#1D9E75" stroke-width="0.8" opacity="0.5"/>
+  <text x="140" y="252" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="url(#g2)">认证销售</text>
+  <text x="140" y="272" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#ffffff" opacity="0.55">Certified Sales Professional</text>
+  <text x="140" y="298" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1D9E75">✓ 产品能力　✓ 竞品认知　✓ 销售实战</text>
+  <text x="140" y="320" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#ffffff" opacity="0.35">${ds} · AOHAI TECHNOLOGY</text>
+</svg>`;
+}
+
+/* ════════════════════════════════════════════
+   CONFETTI
+   ════════════════════════════════════════════ */
+function confetti(){
+  const cols=['#1D9E75','#F6C90E','#E53E3E','#ffffff','#3182CE'];
+  for(let i=0;i<70;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cf';
+    el.style.cssText=`left:${Math.random()*100}vw;width:${6+Math.random()*7}px;height:${6+Math.random()*7}px;background:${cols[0|Math.random()*cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.4}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),4500);
+  },i*25);
+}
+
+/* ════════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════════ */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', ()=>{ show('home'); });
+</script>
+</body>
+</html>
