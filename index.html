@@ -144,6 +144,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 @keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
 .pop{animation:pop .45s cubic-bezier(.34,1.56,.64,1) forwards;}
 
+/* ── STUDY MODE ── */
+.study-hdr{background:var(--navy);color:#fff;padding:13px 16px;}
+.study-hdr-inner{display:flex;justify-content:space-between;align-items:center;font-size:13px;}
+.back-btn{background:none;border:none;color:rgba(255,255,255,.7);font-size:14px;cursor:pointer;padding:4px 0;font-family:inherit;}
+.back-btn:hover{color:#fff;}
+.study-progress{font-size:12px;opacity:.7;}
+.study-item{background:#fff;border-radius:var(--r);padding:18px;margin:14px 0;box-shadow:var(--shadow);}
+.study-qnum{font-size:10px;color:var(--ocean);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;}
+.study-q{font-size:15px;font-weight:700;color:var(--navy);line-height:1.6;margin-bottom:14px;}
+.study-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.study-opt{display:flex;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;line-height:1.5;align-items:flex-start;}
+.study-opt.right{border-color:var(--ok);background:#f0fff4;}
+.study-opt-lt{font-weight:700;min-width:20px;color:var(--muted);flex-shrink:0;padding-top:1px;}
+.study-opt.right .study-opt-lt{color:var(--ok);}
+.study-expl{padding:12px 14px;background:#EEF6FF;border-radius:8px;border-left:3px solid #3182CE;}
+.study-expl-title{font-size:10px;font-weight:700;color:#3182CE;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px;}
+.study-expl-body{font-size:12px;color:var(--text);line-height:1.75;}
+.study-footer{padding:8px 0 4px;}
+
+/* ── HOME two-button row ── */
+.lv-btn-row{display:flex;gap:10px;margin-top:14px;}
+.btn-half{flex:1;padding:11px 10px;font-size:14px;}
+
 /* ── MOBILE ── */
 @media(max-width:480px){
   .qtext{font-size:15px;}
@@ -167,7 +190,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
   <div id="s-home" class="screen on">
     <div class="hero">
       <h1>竞品知识速训</h1>
-      <p>三关闯关，掌握产品卖点、竞品差异与销售话术<br>通过全部三关，获得「认证销售」徽章</p>
+      <p>先学习知识点，再闯关测试，掌握产品卖点、竞品差异与销售话术<br>通过全部三关，获得「认证销售」徽章</p>
     </div>
     <div id="home-grid"></div>
   </div>
@@ -224,6 +247,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
     <div class="review" id="review-sec" style="display:none">
       <div class="review-title">❌ 错题回顾</div>
       <div id="wrong-list"></div>
+    </div>
+  </div>
+
+  <!-- ════════════ STUDY ════════════ -->
+  <div id="s-study" class="screen">
+    <div class="study-hdr">
+      <div class="study-hdr-inner">
+        <button class="back-btn" onclick="goHome()">← 返回主页</button>
+        <span id="study-lv-label">第一关知识点</span>
+        <span class="study-progress" id="study-count">15个知识点</span>
+      </div>
+    </div>
+    <div id="study-list"></div>
+    <div class="study-footer">
+      <button class="btn btn-p" id="study-go-btn" onclick="startLevelFromStudy()">已学完，去闯关 →</button>
     </div>
   </div>
 
@@ -459,7 +497,10 @@ function renderHome(){
     const cardCls = locked?'locked':(passed?'done':'unlocked');
     const action = locked
       ? `<div class="lock-msg">通过第 ${c.id-1} 关后解锁</div>`
-      : `<div class="lv-action"><button class="btn btn-p" onclick="startLevel(${c.id})" style="pointer-events:auto">${passed?'再次挑战 →':'开始答题 →'}</button></div>`;
+      : `<div class="lv-btn-row">
+           <button class="btn btn-s btn-half" onclick="startStudy(${c.id})" style="pointer-events:auto">📖 先学习</button>
+           <button class="btn btn-p btn-half" onclick="startLevel(${c.id})" style="pointer-events:auto">${passed?'再次闯关 →':'开始闯关 →'}</button>
+         </div>`;
     const scoreHtml = passed
       ? `<div style="margin-top:8px"><span class="lv-score-big">${s.best}</span><span style="font-size:13px;color:var(--muted)"> / 10 历史最高</span></div>` : '';
     return `<div class="lv-card ${cardCls}">
@@ -689,6 +730,40 @@ function toast(msg){
   t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2600);
 }
+
+/* ════════════════════════════════════════════
+   STUDY MODE
+   ════════════════════════════════════════════ */
+let studyLevel = 1;
+
+function startStudy(l) {
+  studyLevel = l;
+  document.getElementById('study-lv-label').textContent = LV_NAME[l];
+  document.getElementById('study-count').textContent = `${QB[l].length} 个知识点`;
+
+  document.getElementById('study-list').innerHTML = QB[l].map((q, i) => `
+    <div class="study-item">
+      <div class="study-qnum">知识点 ${i+1} · ${LV_NAME[l].split('：')[1]}</div>
+      <div class="study-q">${q.q}</div>
+      <div class="study-opts">
+        ${q.o.map((opt, oi) => `
+          <div class="study-opt ${oi===q.a?'right':''}">
+            <span class="study-opt-lt">${oi===q.a?'✓':LTRS[oi]}</span>
+            <span>${opt}</span>
+          </div>`).join('')}
+      </div>
+      <div class="study-expl">
+        <div class="study-expl-title">解析 · 销售话术</div>
+        <div class="study-expl-body">${q.e}</div>
+      </div>
+    </div>`).join('');
+
+  const btn = document.getElementById('study-go-btn');
+  btn.textContent = isPassed(l) ? `再次闯关第 ${l} 关 →` : `已学完，去闯关 →`;
+  show('study');
+}
+
+function startLevelFromStudy() { startLevel(studyLevel); }
 
 /* ════════════════════════════════════════════
    INIT
