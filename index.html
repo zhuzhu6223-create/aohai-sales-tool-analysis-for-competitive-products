@@ -439,7 +439,7 @@ const QB = {
    e:"B2G（政府）销售最关键是搞清楚「钱在谁手里、谁写招标需求」。采购路径：预算部门→需求编写→技术路线→总包→验收→可能指定设备方→可能排除遨海者。不搞清楚这条链，技术再好也进不了标。"},
   {q:"遨海的一句话战略定位是什么？",
    o:["「中国最大的 AIS 设备供应商」","「以星地一体远海监管+VDES全信道为差异化锚点的关键能力供应商」","「替代 Saab/Kongsberg 的国产 VTS 总包商」","「面向渔船的低成本 AIS 服务商」"],a:1,
-   e:"战略画像核心：以「VDES全信道+BSH认证+远海高灵敏度」为矛，切「远海/盲区监管」和「国产化替代」两条主线。不做大 VTS 总包，做「关键能力供应商+战略分包」——这是与中船鹏力、海兰信差异化共存的路径。"},
+   e:""},
   {q:"如果销售过程中客户提出关于竞品的问题，你不确定答案，应该怎么处理？",
    o:["随便猜一个，表现自信","说「竞品都不行，不用了解」","诚实说「这个问题我需要确认，今天下午给您准确答案」，然后查竞品分析工作簿核实","转移话题，回避竞品问题"],a:2,
    e:"竞品分析「诚实对标红线」：禁止照搬竞品宣传话术，不得为自证占优而夸大。承诺给准确答案并兑现，比当场胡说更专业——一次不诚实损失的是整个客户关系，一次「我去确认」赢得的是长期信任。"}
@@ -601,7 +601,7 @@ function pick_ans(sel){
     QS.wrong.push(q);
   }
   document.getElementById('expl-body').textContent = q.e;
-  document.getElementById('expl').classList.add('show');
+  if(q.e) document.getElementById('expl').classList.add('show');
   document.getElementById('q-score-txt').textContent = `得分 ${QS.score}`;
   const isLast = QS.idx === QS.qs.length-1;
   document.getElementById('next-btn').textContent = isLast ? '查看结果 →' : '下一题 →';
@@ -767,10 +767,10 @@ function startStudy(l) {
             <span>${opt}</span>
           </div>`).join('')}
       </div>
-      <div class="study-expl">
+      ${q.e ? `<div class="study-expl">
         <div class="study-expl-title">解析 · 销售话术</div>
         <div class="study-expl-body">${q.e}</div>
-      </div>
+      </div>` : ''}
     </div>`).join('');
 
   const btn = document.getElementById('study-go-btn');
